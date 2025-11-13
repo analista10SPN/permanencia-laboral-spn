@@ -87,7 +87,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     .main-title {
-        font-size: 4rem;
+        font-size: 4rem !important;
         font-weight: 700;
         color: #1f77b4;
         text-align: center;
@@ -310,7 +310,7 @@ class DemoRetencion:
     
     def mostrar_header(self):
         """Mostrar header principal"""
-        st.markdown('<p class="main-title" style="font-size: 4rem !important;">Sistema Predictivo de Permanencia Laboral</p>', unsafe_allow_html=True)
+        st.markdown('<p class="main-title">Sistema Predictivo de Permanencia Laboral</p>', unsafe_allow_html=True)
         st.markdown('<p class="subtitle">Tecnología Machine Learning para Análisis de Retención de Talento</p>', unsafe_allow_html=True)
         
         # Explicación funcional del modelo
