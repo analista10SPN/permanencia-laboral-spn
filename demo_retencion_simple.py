@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sistema de Permanencia Laboral - SPN (SYNTH.IA)
+Modelo de Permanencia Laboral - SPN (SYNTH.IA)
 Dashboard ejecutivo para análisis de retención
 """
 
@@ -59,11 +59,21 @@ TIPO_EMPLEADO_DESC = {
 }
 
 RISK_CATEGORIES = {
-    'bajo': {'threshold': 1000, 'label': 'Riesgo Bajo', 'prob': 15, 'color': '#38ef7d'},
-    'medio': {'threshold': 1500, 'label': 'Riesgo Medio', 'prob': 40, 'color': '#fee140'},
-    'urgente': {'threshold': 2500, 'label': 'Riesgo Urgente', 'prob': 70, 'color': "#ad5c00"},
-    'inminente': {'threshold': float('inf'), 'label': 'Riesgo Inminente', 'prob': 95, 'color': '#ff0844'}
+    'bajo': {'threshold': 1000, 'label': 'Riesgo Bajo', 'emoji': '🟢', 'prob': 15, 'color': '#38ef7d'},
+    'medio': {'threshold': 1500, 'label': 'Riesgo Medio', 'emoji': '🟡', 'prob': 40, 'color': '#fee140'},
+    'urgente': {'threshold': 2500, 'label': 'Riesgo Urgente', 'emoji': '🟠', 'prob': 70, 'color': "#ad5c00"},
+    'inminente': {'threshold': float('inf'), 'label': 'Riesgo Inminente', 'emoji': '🔴', 'prob': 95, 'color': '#ff0844'}
 }
+
+# Colores distintos para comparación de empleados
+EMPLOYEE_COLORS = [
+    '#667eea',  # Púrpura
+    '#f093fb',  # Rosa
+    '#4facfe',  # Azul cielo
+    '#43e97b',  # Verde
+    '#fa709a',  # Rosa fuerte
+    '#feca57',  # Amarillo
+]
 
 def get_code_description(code, lookup_dict, default='--'):
     """Obtiene descripción de código o retorna el código si no existe"""
@@ -86,17 +96,29 @@ st.set_page_config(
 # CSS personalizado con fuentes más grandes
 st.markdown("""
 <style>
+    /* v2.1 - Título más pequeño */
     .main-title {
-        font-size: 4rem !important;
-        font-weight: 700;
+        font-size: 3.2rem !important;
+        font-weight: 700 !important;
         color: #1f77b4;
         text-align: center;
-        padding: 1.5rem 0;
+        padding: 1.2rem 0;
         background: linear-gradient(90deg, #1f77b4 0%, #2ca02c 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 0.5rem;
+        line-height: 1.2;
     }
+    
+    /* Fallback for gradient text */
+    @supports not (-webkit-background-clip: text) {
+        .main-title {
+            color: #1f77b4 !important;
+            -webkit-text-fill-color: #1f77b4 !important;
+        }
+    }
+    
     .subtitle {
         text-align: center;
         color: #444;
@@ -296,6 +318,7 @@ class DemoRetencion:
                 'risk_score': risk_score_survival,
                 'categoria': categoria,
                 'categoria_label': RISK_CATEGORIES[categoria]['label'],
+                'categoria_emoji': RISK_CATEGORIES[categoria]['emoji'],
                 'prob_1_mes': prob_1_mes,
                 'prob_3_meses': prob_3_meses,
                 'prob_6_meses': prob_6_meses,
@@ -310,18 +333,26 @@ class DemoRetencion:
     
     def mostrar_header(self):
         """Mostrar header principal"""
-        st.markdown('<p class="main-title">Sistema Predictivo de Permanencia Laboral</p>', unsafe_allow_html=True)
+        # Título con inline style y tamaño reducido
+        st.markdown('''
+        <div style="text-align: center;">
+            <h1 class="main-title" style="font-size: 3.2rem !important; font-weight: 700 !important; margin: 1rem 0;">
+                Modelo Predictivo de Permanencia Laboral
+            </h1>
+        </div>
+        ''', unsafe_allow_html=True)
+        
         st.markdown('<p class="subtitle">Tecnología Machine Learning para Análisis de Retención de Talento</p>', unsafe_allow_html=True)
         
         # Explicación funcional del modelo
-        with st.expander("¿Cómo funciona este sistema? (Explicación para RRHH)", expanded=False):
+        with st.expander("¿Cómo funciona este modelo? (Explicación para RRHH)", expanded=False):
             col1, col2 = st.columns([1, 1])
             
             with col1:
                 st.markdown("""
-                ### ¿Qué hace este sistema?
+                ### ¿Qué hace este modelo?
                 
-                Este sistema utiliza **Machine Learning** (aprendizaje automático) para predecir 
+                Este modelo utiliza **Machine Learning** (aprendizaje automático) para predecir 
                 qué empleados tienen mayor probabilidad de dejar la empresa en los próximos meses.
                 
                 **Su objetivo es ser un "detector de señales":**
@@ -330,7 +361,7 @@ class DemoRetencion:
                 - Calcula un "score de riesgo" para cada empleado activo
                 
                 **La base del modelo es matemática aplicada:**
-                El sistema aprendió de más de 4,900 casos reales.
+                El modelo aprendió de más de 4,900 casos reales.
                 """)
             
             with col2:
@@ -348,7 +379,7 @@ class DemoRetencion:
                 
                 **Paso 3: Predicción en tiempo real**
                 - Ingresa el ID de un empleado
-                - El sistema calcula su "score de riesgo"
+                - El modelo calcula su "score de riesgo"
                 - Te dice cuándo podría irse (1 mes, 3 meses, 6 meses, 1 año)
                 
                 **Resultado:** Puedes actuar ANTES de que sea tarde.
@@ -356,7 +387,7 @@ class DemoRetencion:
             
             st.markdown("---")
             st.info("""
-            **Para el equipo de RRHH:** Este sistema NO reemplaza tu criterio profesional. 
+            **Para el equipo de RRHH:** Este modelo NO reemplaza tu criterio profesional. 
             Es una herramienta de alerta temprana que te ayuda a priorizar conversaciones 
             y acciones de retención con los empleados que más lo necesitan.
             """)
@@ -372,7 +403,7 @@ class DemoRetencion:
         total_empleados = len(self.data)
         empleados_activos = len(self.data[self.data['Has_Left'] == 0])
         empleados_retirados = len(self.data[self.data['Has_Left'] == 1])
-        tasa_rotacion = (empleados_retirados / total_empleados) * 100
+        tasa_desvinculacion = (empleados_retirados / total_empleados) * 100
         
         with col1:
             st.markdown(f"""
@@ -393,8 +424,8 @@ class DemoRetencion:
         with col3:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-label">Tasa de Rotación</div>
-                <div class="metric-value">{tasa_rotacion:.1f}%</div>
+                <div class="metric-label">Tasa de Desvinculación</div>
+                <div class="metric-value">{tasa_desvinculacion:.1f}%</div>
             </div>
             """, unsafe_allow_html=True)
         
@@ -422,7 +453,7 @@ class DemoRetencion:
             )
             fig.update_traces(marker_color='#667eea')
             fig.update_layout(showlegend=False, height=300)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         
         with col2:
             st.markdown("#### Distribución de Riesgo - Empleados Activos")
@@ -439,7 +470,7 @@ class DemoRetencion:
                     conteo = Counter(categorias)
                     
                     categorias_orden = ['bajo', 'medio', 'urgente', 'inminente']
-                    labels_orden = [RISK_CATEGORIES[cat]['label'] for cat in categorias_orden]
+                    labels_orden = [f"{RISK_CATEGORIES[cat]['emoji']} {RISK_CATEGORIES[cat]['label']}" for cat in categorias_orden]
                     valores = [conteo.get(cat, 0) for cat in categorias_orden]
                     colores = [RISK_CATEGORIES[cat]['color'] for cat in categorias_orden]
                     
@@ -461,7 +492,7 @@ class DemoRetencion:
                         showlegend=False
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
                     
                     total_activos = len(empleados_activos_data)
                     st.markdown(f"""
@@ -488,7 +519,7 @@ class DemoRetencion:
         
         with col2:
             st.markdown("<br>", unsafe_allow_html=True)
-            buscar = st.button("Analizar Empleado", use_container_width=True)
+            buscar = st.button("Analizar Empleado", width='stretch')
         
         if buscar and empleado_id:
             empleado_data = self.data[self.data['Employee_ID'] == empleado_id]
@@ -516,7 +547,7 @@ class DemoRetencion:
             col_photo, col_info = st.columns([1, 3])
             
             with col_photo:
-                st.image(photo_path, use_column_width=True)
+                st.image(photo_path, width=150)
         else:
             col_info = st.container()
         
@@ -542,14 +573,15 @@ class DemoRetencion:
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Predicción de riesgo
+        # Predicción de riesgo con emoji
         categoria = prediccion['categoria']
         risk_score = prediccion['risk_score']
+        emoji = prediccion['categoria_emoji']
         
         st.markdown(f"""
         <div class="risk-card risk-{categoria}">
             <h2 style="color: white; text-align: center; margin: 0; font-size: 2rem;">
-                {prediccion['categoria_label']}
+                {emoji} {prediccion['categoria_label']}
             </h2>
             <h1 style="color: white; text-align: center; margin: 1rem 0; font-size: 5rem; font-weight: 700;">
                 {risk_score:.0f}
@@ -606,7 +638,7 @@ class DemoRetencion:
             yaxis=dict(range=[0, 100])
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         
         # Interpretación
         st.markdown("### Interpretación y Recomendaciones")
@@ -662,7 +694,7 @@ class DemoRetencion:
         with col2:
             emp2_id = st.text_input("ID Empleado 2:", key="emp2")
         
-        if st.button("Comparar Empleados", use_container_width=True):
+        if st.button("Comparar Empleados", width='stretch'):
             if not emp1_id or not emp2_id:
                 st.warning("Por favor ingrese ambos IDs de empleados")
                 return
@@ -697,7 +729,7 @@ class DemoRetencion:
                 st.image(photo1, width=150)
             
             st.markdown(f"### {emp1['Employee_ID']}")
-            st.markdown(f"**Categoría:** {pred1['categoria_label']}")
+            st.markdown(f"**Categoría:** {pred1['categoria_emoji']} {pred1['categoria_label']}")
             st.metric("Puntaje de Riesgo", f"{pred1['risk_score']:.0f}")
             st.metric("Antigüedad", f"{emp1.get('Tenure_Years', 0):.1f} años")
             st.metric("Salario", f"${emp1.get('Base_Salary', 0):,.0f}")
@@ -709,40 +741,48 @@ class DemoRetencion:
                 st.image(photo2, width=150)
             
             st.markdown(f"### {emp2['Employee_ID']}")
-            st.markdown(f"**Categoría:** {pred2['categoria_label']}")
+            st.markdown(f"**Categoría:** {pred2['categoria_emoji']} {pred2['categoria_label']}")
             st.metric("Puntaje de Riesgo", f"{pred2['risk_score']:.0f}")
             st.metric("Antigüedad", f"{emp2.get('Tenure_Years', 0):.1f} años")
             st.metric("Salario", f"${emp2.get('Base_Salary', 0):,.0f}")
         
-        # Gráfico comparativo
+        # Gráfico comparativo con colores distintos
         st.markdown("### Comparación de Probabilidades")
         
         fig = go.Figure()
         
         tiempos = ['1 Mes', '3 Meses', '6 Meses', '1 Año']
         
+        # Usar colores distintos para cada empleado
         fig.add_trace(go.Bar(
-            name=emp1['Employee_ID'],
+            name=f"{pred1['categoria_emoji']} {emp1['Employee_ID']}",
             x=tiempos,
             y=[pred1['prob_1_mes'], pred1['prob_3_meses'], pred1['prob_6_meses'], pred1['prob_1_año']],
-            marker_color=RISK_CATEGORIES[pred1['categoria']]['color']
+            marker_color=EMPLOYEE_COLORS[0]  # Color único para empleado 1
         ))
         
         fig.add_trace(go.Bar(
-            name=emp2['Employee_ID'],
+            name=f"{pred2['categoria_emoji']} {emp2['Employee_ID']}",
             x=tiempos,
             y=[pred2['prob_1_mes'], pred2['prob_3_meses'], pred2['prob_6_meses'], pred2['prob_1_año']],
-            marker_color=RISK_CATEGORIES[pred2['categoria']]['color']
+            marker_color=EMPLOYEE_COLORS[1]  # Color único para empleado 2
         ))
         
         fig.update_layout(
             barmode='group',
             yaxis_title="Probabilidad de Salida (%)",
             height=400,
-            yaxis=dict(range=[0, 100])
+            yaxis=dict(range=[0, 100]),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         
         # Resumen
         st.markdown("### Resumen")
@@ -751,12 +791,12 @@ class DemoRetencion:
         
         if pred1['risk_score'] > pred2['risk_score']:
             st.info(f"""
-            **{emp1['Employee_ID']}** tiene un riesgo **{diff_riesgo:.0f} puntos mayor** que **{emp2['Employee_ID']}**.  
+            **{emp1['Employee_ID']}** ({pred1['categoria_emoji']} {pred1['categoria_label']}) tiene un riesgo **{diff_riesgo:.0f} puntos mayor** que **{emp2['Employee_ID']}** ({pred2['categoria_emoji']} {pred2['categoria_label']}).  
             Se recomienda priorizar la atención en **{emp1['Employee_ID']}**.
             """)
         else:
             st.info(f"""
-            **{emp2['Employee_ID']}** tiene un riesgo **{diff_riesgo:.0f} puntos mayor** que **{emp1['Employee_ID']}**.  
+            **{emp2['Employee_ID']}** ({pred2['categoria_emoji']} {pred2['categoria_label']}) tiene un riesgo **{diff_riesgo:.0f} puntos mayor** que **{emp1['Employee_ID']}** ({pred1['categoria_emoji']} {pred1['categoria_label']}).  
             Se recomienda priorizar la atención en **{emp2['Employee_ID']}**.
             """)
         
@@ -846,10 +886,10 @@ class DemoRetencion:
         
         df_display.columns = [traducciones.get(col, col) for col in df_display.columns]
         
-        # Formatear
+        # Formatear con emojis
         if 'Categoría' in df_display.columns:
             df_display['Categoría'] = df_display['Categoría'].apply(
-                lambda x: RISK_CATEGORIES.get(x, {}).get('label', x) if pd.notna(x) else 'N/A'
+                lambda x: f"{RISK_CATEGORIES.get(x, {}).get('emoji', '')} {RISK_CATEGORIES.get(x, {}).get('label', x)}" if pd.notna(x) else 'N/A'
             )
         
         if 'Score Riesgo' in df_display.columns:
@@ -869,7 +909,7 @@ class DemoRetencion:
         # Mostrar tabla
         st.dataframe(
             df_display,
-            use_container_width=True,
+            width='stretch',
             height=500
         )
         
@@ -930,9 +970,9 @@ class DemoRetencion:
             st.stop()
         
         # Mostrar info de modelos
-        with st.expander("Información del Sistema"):
+        with st.expander("Información del Modelo"):
             st.markdown("""
-            **Sistema de Predicción Dual:**
+            **Modelo de Predicción Dual:**
             - Survival Analysis (Random Survival Forest) - Predicciones temporales
             - Random Forest Classifier - Clasificación binaria
             
